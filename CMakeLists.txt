@@ -39,6 +39,8 @@ project(tritonthirdparty LANGUAGES C CXX)
 #
 include(ExternalProject)
 
+set_property(GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS ON)
+
 if(NOT TRITON_THIRD_PARTY_INSTALL_PREFIX)
   message(FATAL_ERROR "TRITON_THIRD_PARTY_INSTALL_PREFIX must be set")
 endif() # TRITON_THIRD_PARTY_INSTALL_PREFIX
@@ -251,7 +253,7 @@ ExternalProject_Add(grpc
     -DgRPC_ZLIB_PROVIDER:STRING=package
     -DgRPC_CARES_PROVIDER:STRING=package
     -DgRPC_SSL_PROVIDER:STRING=package
-    -Dc-ares_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/c-ares/lib/cmake/c-ares
+    -Dc-ares_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/c-ares/lib64/cmake/c-ares
     -DProtobuf_DIR:PATH=${_FINDPACKAGE_PROTOBUF_CONFIG_DIR}
     ${_CMAKE_ARGS_OPENSSL_ROOT_DIR}
     ${_CMAKE_ARGS_CMAKE_TOOLCHAIN_FILE}
@@ -384,11 +386,12 @@ ExternalProject_Add(crc32c
 # absl must preceed grpc to ensure that the absl from the newer grpc
 # repo is used and not the absl from the older grpc.
 set(GCS_CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH}
-   ${TRITON_THIRD_PARTY_INSTALL_PREFIX}/c-ares/lib/cmake/c-ares
-   ${TRITON_THIRD_PARTY_INSTALL_PREFIX}/absl/lib/cmake/absl
-   ${TRITON_THIRD_PARTY_INSTALL_PREFIX}/crc32c/lib/cmake/Crc32c
+   ${TRITON_THIRD_PARTY_INSTALL_PREFIX}/c-ares/lib64/cmake/c-ares
+   ${TRITON_THIRD_PARTY_INSTALL_PREFIX}/absl/lib64/cmake/absl
+   ${TRITON_THIRD_PARTY_INSTALL_PREFIX}/crc32c/lib64/cmake/Crc32c
+   ${TRITON_THIRD_PARTY_INSTALL_PREFIX}/grpc/lib64/cmake/grpc
    ${TRITON_THIRD_PARTY_INSTALL_PREFIX}/grpc/lib/cmake/grpc
-   ${TRITON_THIRD_PARTY_INSTALL_PREFIX}/nlohmann_json/lib/cmake/nlohmann_json
+   ${TRITON_THIRD_PARTY_INSTALL_PREFIX}/nlohmann_json/lib64/cmake/nlohmann_json
    ${_FINDPACKAGE_PROTOBUF_CONFIG_DIR})
 
 #
@@ -397,7 +400,7 @@ set(GCS_CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH}
 ExternalProject_Add(google-cloud-cpp
   PREFIX google-cloud-cpp
   GIT_REPOSITORY "https://github.com/googleapis/google-cloud-cpp.git"
-  GIT_TAG "v1.42.0"
+  GIT_TAG "main"
   SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/google-cloud-cpp/src/google-cloud-cpp"
   EXCLUDE_FROM_ALL ON
   CMAKE_CACHE_ARGS
@@ -408,9 +411,10 @@ ExternalProject_Add(google-cloud-cpp
     -DCMAKE_PREFIX_PATH:PATH=${GCS_CMAKE_PREFIX_PATH}
     -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=ON
     -DCMAKE_INSTALL_PREFIX:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/google-cloud-cpp
-    -Dnlohmann_json_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/nlohmann_json/lib/cmake/nlohmann_json
+    -Dnlohmann_json_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/nlohmann_json/lib64/cmake/nlohmann_json
+    -DgRPC_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/grpc/lib/cmake/grpc
     -DProtobuf_DIR:PATH=${_FINDPACKAGE_PROTOBUF_CONFIG_DIR}
-    -DCrc32c_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/crc32c/lib/cmake/Crc32c
+    -DCrc32c_DIR:PATH=${TRITON_THIRD_PARTY_INSTALL_PREFIX}/crc32c/lib64/cmake/Crc32c
   PATCH_COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/tools/install_src.py --src <SOURCE_DIR> ${INSTALL_SRC_DEST_ARG}
   DEPENDS grpc c-ares protobuf crc32c absl nlohmann-json
 )
@@ -459,7 +463,7 @@ ExternalProject_Add(cnmem
 ExternalProject_Add(aws-sdk-cpp
   PREFIX aws-sdk-cpp
   GIT_REPOSITORY "https://github.com/aws/aws-sdk-cpp.git"
-  GIT_TAG "1.8.186"
+  GIT_TAG "1.9.356"
   SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/aws-sdk-cpp/src/aws-sdk-cpp"
   EXCLUDE_FROM_ALL ON
   CMAKE_CACHE_ARGS

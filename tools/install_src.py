@@ -110,3 +110,4 @@ if __name__ == '__main__':
                 log('install_src: removing {}'.format(rmfp))
                 shutil.rmtree(rmfp, onerror=del_rw)
                 dirs.remove(rmdir)
+
